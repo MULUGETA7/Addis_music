@@ -1,0 +1,56 @@
+
+services:
+  # User Frontend Service
+  user-frontend:
+    image: mule7/user-frontend:latest
+    ports:
+      - "3011:3011"
+    environment:
+      # These frontend variables might also come from .env if needed
+      - VITE_API_BASE_URL=http://localhost:5011
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Admin Frontend Service
+  admin-frontend:
+    image: mule7/admin-frontend:latest
+    ports:
+      - "3012:3012"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5011
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Backend Service
+backend:
+    image: mule7/backend:latest # <--- CHANGED FROM BUILD
+    ports:
+      - "5011:5011"
+    environment:
+      # These variables will be sourced from your .env file
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_URL=${CLOUDINARY_URL}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - CONTACT_EMAIL=${CONTACT_EMAIL}
+      - PORT=${PORT}         # Assuming you have PORT in .env now
+
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - app-network
+
+volumes:
+  uploads_data:
+
+networks:
+  app-network:
+    driver: bridge
